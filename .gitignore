@@ -156,3 +156,7 @@ cython_debug/
 images/
 
 scripts/*ttf
+*.tsv
+*.pkl
+.vscode/launch.json
+tmp.png

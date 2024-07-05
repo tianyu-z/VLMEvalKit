@@ -9,9 +9,9 @@ from tqdm import trange
 
 def create_and_update_tsv(file_path):
     # Create and write the header
-    with open(file_path, "w", newline="") as file:
-        writer = csv.writer(file, delimiter="\t")
-        writer.writerow(["index", "image", "question", "answer"])
+    with open(file_path, 'w', newline='') as file:
+        writer = csv.writer(file, delimiter='\t')
+        writer.writerow(['index', 'image', 'question', 'answer'])
 
     index = 0
 
@@ -19,8 +19,8 @@ def create_and_update_tsv(file_path):
         nonlocal index
 
         # Encode image to base64
-        with open(image_path, "rb") as img_file:
-            image_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+        with open(image_path, 'rb') as img_file:
+            image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
 
         # Prepare the row data
         row = [
@@ -31,8 +31,8 @@ def create_and_update_tsv(file_path):
         ]
 
         # Append the row to the TSV file
-        with open(file_path, "a", newline="") as file:
-            writer = csv.writer(file, delimiter="\t")
+        with open(file_path, 'a', newline='') as file:
+            writer = csv.writer(file, delimiter='\t')
             writer.writerow(row)
 
         index += 1
@@ -41,27 +41,27 @@ def create_and_update_tsv(file_path):
 
 
 def get_question(language):
-    if language == "en":
-        question = "What is the covered texts in the image? Please restore the covered texts without outputting the explanations."
-    elif language == "zh":
-        question = "图像中被覆盖的文本是什么？请在不输出解释的情况下还原被覆盖的文本。"
+    if language == 'en':
+        question = 'What is the covered texts in the image? Please restore the covered texts without outputting the explanations.'
+    elif language == 'zh':
+        question = '图像中被覆盖的文本是什么？请在不输出解释的情况下还原被覆盖的文本。'
     else:
-        raise ValueError(f"Language {language} not supported.")
+        raise ValueError(f'Language {language} not supported.')
     return question
 
 
-for lang in ["en", "zh"]:
-    for diff in ["easy", "hard"]:
-        dataset_name = f"vcr-org/VCR-wiki-{lang}-{diff}-test-500"
-        dataset = load_dataset(f"vcr-org/VCR-wiki-{lang}-{diff}-test-500")["test"]
-        tsv_file_path = dataset_name.split("/")[1] + ".tsv"
+for lang in ['en', 'zh']:
+    for diff in ['easy', 'hard']:
+        dataset_name = f'vcr-org/VCR-wiki-{lang}-{diff}-test-500'
+        dataset = load_dataset(f'vcr-org/VCR-wiki-{lang}-{diff}-test-500')['test']
+        tsv_file_path = dataset_name.split('/')[1] + '.tsv'
         add_row = create_and_update_tsv(tsv_file_path)
         question = get_question(lang)
         for i in trange(500):
             # save image
-            dataset[i]["stacked_image"].save("tmp.png")
+            dataset[i]['stacked_image'].save('tmp.png')
             add_row(
-                "tmp.png",
+                'tmp.png',
                 question,
-                dataset[i]["crossed_text"],
+                dataset[i]['crossed_text'],
             )

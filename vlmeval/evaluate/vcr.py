@@ -11,33 +11,33 @@ from spacy.cli import download
 from vlmeval.smp import *
 
 experiment_id = str(uuid.uuid4())
-rouge = evaluate.load('rouge', experiment_id=experiment_id)
+rouge = evaluate.load("rouge", experiment_id=experiment_id)
 # Download the English and Chinese models
 try:
-    nlp_en = spacy.load('en_core_web_sm')
+    nlp_en = spacy.load("en_core_web_sm")
 except:
-    download('en_core_web_sm')
-    nlp_en = spacy.load('en_core_web_sm')
+    download("en_core_web_sm")
+    nlp_en = spacy.load("en_core_web_sm")
 
 try:
-    nlp_zh = spacy.load('zh_core_web_sm')
+    nlp_zh = spacy.load("zh_core_web_sm")
 except:
-    download('zh_core_web_sm')
-    nlp_zh = spacy.load('zh_core_web_sm')
+    download("zh_core_web_sm")
+    nlp_zh = spacy.load("zh_core_web_sm")
 
-nlp = {'en': nlp_en, 'zh': nlp_zh}
+nlp = {"en": nlp_en, "zh": nlp_zh}
 
 
 def rough_filter(answer_text):
     if "I can't" in answer_text:
         return False
-    elif 'I cannot' in answer_text:
+    elif "I cannot" in answer_text:
         return False
-    elif 'sorry' in answer_text.lower():
+    elif "sorry" in answer_text.lower():
         return False
-    if '无法' in answer_text:
+    if "无法" in answer_text:
         return False
-    elif '抱歉' in answer_text:
+    elif "抱歉" in answer_text:
         return False
     else:
         return True
@@ -45,15 +45,15 @@ def rough_filter(answer_text):
 
 def zero_template(crossed_text):
     return {
-        'crossed_text': crossed_text,
-        'max_sim_val': 0,
-        'max_sim_string': '',
-        'precision': 0,
-        'recall': 0,
-        'f1': 0,
-        'jaccard': 0,
-        'rouge1': 0,
-        'exact_match': 0,
+        "crossed_text": crossed_text,
+        "max_sim_val": 0,
+        "max_sim_string": "",
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "jaccard": 0,
+        "rouge1": 0,
+        "exact_match": 0,
     }
 
 
@@ -68,7 +68,7 @@ def tokenize(text, language):
     Returns:
     list: The list of tokens.
     """
-    assert language in ['en', 'zh']
+    assert language in ["en", "zh"]
     nlp_language = nlp[language]
     processed_text = nlp_language(text)
     return [token.text for token in processed_text]
@@ -86,14 +86,14 @@ def find_best_match(needle, hay, language, rouge):
     tuple: The highest similarity value and the best matching string.
     """
 
-    assert language in ['en', 'zh']
+    assert language in ["en", "zh"]
     tokens_hay = tokenize(hay, language)
     tokens_needle = tokenize(needle, language)
 
-    splitter = '' if language == 'zh' else ' '
+    splitter = "" if language == "zh" else " "
     ngrams_ = ngrams(tokens_hay, len(tokens_needle))
     max_sim_val = 0
-    max_sim_string = ''
+    max_sim_string = ""
     max_sim_ngram = []
     tokens_needle_set = set(tokens_needle)
     ngrams_hasjoint = [
@@ -111,15 +111,15 @@ def find_best_match(needle, hay, language, rouge):
     # Evaluate
     if len(max_sim_ngram) == 0:
         return {
-            'crossed_text': needle,
-            'max_sim_val': 0,
-            'max_sim_string': '',
-            'precision': 0,
-            'recall': 0,
-            'f1': 0,
-            'jaccard': 0,
-            'rouge1': 0,
-            'exact_match': 0,
+            "crossed_text": needle,
+            "max_sim_val": 0,
+            "max_sim_string": "",
+            "precision": 0,
+            "recall": 0,
+            "f1": 0,
+            "jaccard": 0,
+            "rouge1": 0,
+            "exact_match": 0,
         }
     pred_set = set(max_sim_ngram)
     ref_set = set(tokens_needle)
@@ -138,19 +138,19 @@ def find_best_match(needle, hay, language, rouge):
         predictions=[max_sim_string],
         references=[needle],
         tokenizer=partial(tokenize, language=language),
-        rouge_types=['rouge1'],
-    )['rouge1']
+        rouge_types=["rouge1"],
+    )["rouge1"]
     exact_match = float(list(max_sim_ngram) == list(tokens_needle))
     out = {
-        'crossed_text': needle,
-        'max_sim_string': max_sim_string,
-        'max_sim_val': max_sim_val,
-        'precision': precision,
-        'recall': recall,
-        'f1': f1,
-        'jaccard': jaccard,
-        'rouge1': rouge_1,
-        'exact_match': exact_match,
+        "crossed_text": needle,
+        "max_sim_string": max_sim_string,
+        "max_sim_val": max_sim_val,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "jaccard": jaccard,
+        "rouge1": rouge_1,
+        "exact_match": exact_match,
     }
     return out
 
@@ -174,7 +174,7 @@ def process_match_single_new(image_id, prediction, answer, language, progress_qu
     if isinstance(answer, str):
         answer = eval(answer)
     assert isinstance(answer, list)
-    result = prediction.split('Assistant: ')[-1]
+    result = prediction.split("Assistant: ")[-1]
     for i, crossed_text in enumerate(answer):
         if rough_filter(result):
             find_best_match_result = find_best_match(
@@ -193,10 +193,10 @@ def process_match_single_new(image_id, prediction, answer, language, progress_qu
     return image_id, result_per_id
 
 
-def vcr_eval(eval_file, language='en', **kwargs):
-    vcr_score_list = {'Exact_Match': [], 'Jaccard': []}
-    vcr_score = {'Exact_Match': 0, 'Jaccard': 0}
-    logger = get_logger('Evaluation')
+def vcr_eval(eval_file, language, difficulty, **kwargs):
+    vcr_score_list = {"Exact_Match": [], "Jaccard": []}
+    vcr_score = {"Exact_Match": 0, "Jaccard": 0}
+    logger = get_logger("Evaluation")
     data = load(eval_file)
 
     lt = len(data)
@@ -215,8 +215,8 @@ def vcr_eval(eval_file, language='en', **kwargs):
                 process_match_single_new,
                 args=(
                     str(instance_id),
-                    instance['prediction'],
-                    instance['answer'],
+                    instance["prediction"],
+                    instance["answer"],
                     language,
                     progress_queue,
                 ),
@@ -234,20 +234,28 @@ def vcr_eval(eval_file, language='en', **kwargs):
     for result in results:
         image_id, result_per_id = result.get()
         overall_results[str(image_id)].update(result_per_id[image_id])
-        for blank_id in range(len(results[image_id])):
-            blank_id_str = str(blank_id)
-            vcr_score_list['Exact_Match'].append(result_per_id[image_id][blank_id_str]['exact_match'])
-            vcr_score_list['Jaccard'].append(result_per_id[image_id][blank_id_str]['jaccard'])
-        vcr_score['Exact_Match'] = np.mean(vcr_score_list['Exact_Match'])
-        vcr_score['Jaccard'] = np.mean(vcr_score_list['Jaccard'])
-    results_with_metrics = {
-        'Exact_Match': vcr_score['Exact_Match'],
-        'Jaccard': vcr_score['Jaccard'],
-        'Predictions': results
+        for blank_id_str in result_per_id[image_id].keys():
+            vcr_score_list["Exact_Match"].append(
+                result_per_id[image_id][blank_id_str]["exact_match"]
+            )
+            vcr_score_list["Jaccard"].append(
+                result_per_id[image_id][blank_id_str]["jaccard"]
+            )
+        vcr_score["Exact_Match"] = np.mean(vcr_score_list["Exact_Match"])
+        vcr_score["Jaccard"] = np.mean(vcr_score_list["Jaccard"])
+    results_out = {
+        k: v for i in range(len(results)) for k, v in results[i].get()[1].items()
     }
-    score_pth = eval_file.replace('.xlsx', '_score.json')
+    results_with_metrics = {
+        "Exact_Match": vcr_score["Exact_Match"],
+        "Jaccard": vcr_score["Jaccard"],
+        "Predictions": results_out,
+    }
+    score_pth = eval_file.replace(".xlsx", f"{language}_{difficulty}_score.json")
     dump(results_with_metrics, score_pth)
-    logger.info(f'VCR successfully finished evaluating {eval_file}, results saved in {score_pth}')
-    logger.info('Score: ')
+    logger.info(
+        f"VCR successfully finished evaluating {eval_file}, results saved in {score_pth}"
+    )
+    logger.info("Score: ")
     for key, value in vcr_score.items():
-        logger.info('{}:{}'.format(key, value))
+        logger.info("{}:{}".format(key, value))

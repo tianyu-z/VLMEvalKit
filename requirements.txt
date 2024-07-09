@@ -27,7 +27,6 @@ sty
 tabulate
 tiktoken
 timeout-decorator
-# torch
 tqdm
 transformers
 typing_extensions==4.7.1
@@ -35,4 +34,3 @@ validators
 visual_genome
 xlsxwriter
 xtuner
-spacy~=3.7.4

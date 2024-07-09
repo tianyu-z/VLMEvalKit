@@ -1,9 +1,7 @@
-import csv
 import base64
-from PIL import Image
-import io
+import csv
+
 from datasets import load_dataset
-import os
 from tqdm import trange
 
 
@@ -42,12 +40,13 @@ def create_and_update_tsv(file_path):
 
 def get_question(language):
     if language == 'en':
-        question = 'What is the covered texts in the image? Please restore the covered texts without outputting the explanations.'
+        q = ('What is the covered texts in the image? '
+             'Please restore the covered texts without outputting the explanations.')
     elif language == 'zh':
-        question = '图像中被覆盖的文本是什么？请在不输出解释的情况下还原被覆盖的文本。'
+        q = '图像中被覆盖的文本是什么？请在不输出解释的情况下还原被覆盖的文本。'
     else:
         raise ValueError(f'Language {language} not supported.')
-    return question
+    return q
 
 
 for lang in ['en', 'zh']:
